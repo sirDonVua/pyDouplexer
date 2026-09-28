@@ -1,0 +1,60 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+<myLayout>:
+    BoxLayout:
+        id: mainLayout
+        orientation: "vertical"
+        canvas.before:
+            Color: 
+                rgba: get_color_from_hex("#282a36")
+            Rectangle:
+                pos: root.pos 
+                size: root.size
+        Label:
+            text: "Welcome to PyDoplexer"
+            size_hint: (1,0.1)
+            color: get_color_from_hex("#f1fa8c")
+            font_size: '28sp'
+            canvas.before:
+                Color:
+                    rgba: get_color_from_hex("#6272a4")
+                Line:
+                    width: 2
+                    rectangle: (self.x, self.y, self.width, self.height)
+        Label:
+            text: "Please choose a file:"
+            size_hint: 1,0.1
+            color: get_color_from_hex("#f8f8f2")
+            font_size: '22sp'
+            margin: 20
+            pos_hint: {"x":-0.35, "y":0.9}
+        FileChooserIconView:
+            id: file_chooser
+            size_hint: 1,0.5
+            on_submit: root.set_file()
+        BoxLayout:
+            size_hint: 1,0.1
+            ToggleButton:
+                id: btn1
+                text: "RTL 2UP"
+                group: "2up"
+                on_state: root.update_run_btn()
+                background_color: get_color_from_hex("#44475a")
+            ToggleButton:
+                id: btn2
+                text: "LTR 2UP"
+                group: "2up"
+                on_state: root.update_run_btn()
+                background_color: get_color_from_hex("#44475a")
+        ToggleButton:
+            id: btn3
+            text: "Split"
+            size_hint: 1,0.1
+            on_state: root.update_run_btn()
+            background_color: get_color_from_hex("#44475a")
+        Button:
+            id: runButton
+            text: "Run"
+            size_hint: 1,0.2
+            disabled: True
+            on_press: root.call_backend()
+            background_color: get_color_from_hex("#50fa7b")
