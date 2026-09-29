@@ -22,3 +22,4 @@ android.minapi = 21
 android.ndk_api = 21
 
 android.archs = arm64-v8a
+android.accept_sdk_license = True
