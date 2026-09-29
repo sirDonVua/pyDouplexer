@@ -2,75 +2,26 @@ name: Build Android APK
 
 on:
   push:
-    branches: [main, master]
+    branches: [master, main]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      ANDROID_HOME: ${{ github.workspace }}/android-sdk
-      ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
-      BUILD_TOOLS_VERSION: "33.0.1"
-      PLATFORM_VERSION: "android-33"
-
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Build APK
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
         with:
-          python-version: "3.11"
-
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "17"
-
-      - name: Install Android command-line tools
-        run: |
-          mkdir -p "$ANDROID_HOME/cmdline-tools"
-          if [ ! -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
-            curl -fsSL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/cmdline-tools.zip
-            unzip -q /tmp/cmdline-tools.zip -d /tmp/cmdline-tools-extract
-            rm -rf "$ANDROID_HOME/cmdline-tools/latest"
-            mv /tmp/cmdline-tools-extract/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
-          fi
-
-      - name: Prepare SDK folders expected by Buildozer
-        run: |
-          mkdir -p "$HOME/.buildozer/android/platform"
-          rm -rf "$HOME/.buildozer/android/platform/android-sdk"
-          ln -sfn "$ANDROID_HOME" "$HOME/.buildozer/android/platform/android-sdk"
-
-          mkdir -p "$ANDROID_HOME/tools/bin"
-          ln -sfn "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "$ANDROID_HOME/tools/bin/sdkmanager"
-          ln -sfn "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" "$ANDROID_HOME/tools/bin/avdmanager" || true
-
-      - name: Accept licenses and install SDK packages
-        run: |
-          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
-          yes | sdkmanager --licenses || true
-          sdkmanager \
-            "platform-tools" \
-            "build-tools;$BUILD_TOOLS_VERSION" \
-            "platforms;$PLATFORM_VERSION"
-
-      - name: Install buildozer
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install buildozer "cython<3.0.0"
-
-      - name: Build Debug APK
-        run: |
-          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$PATH"
-          buildozer android debug
+          workdir: .
+          buildozer_version: stable
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-debug-apk
-          path: bin/*.apk
+          name: pydoublexer-apk
+          path: ${{ steps.buildozer.outputs.filename }}
