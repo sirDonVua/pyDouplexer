@@ -12,6 +12,8 @@ jobs:
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      BUILD_TOOLS_VERSION: "33.0.1"
+      PLATFORM_VERSION: "android-33"
 
     steps:
       - name: Checkout code
@@ -28,23 +30,29 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Setup Android SDK
+      - name: Point Buildozer to GitHub Android SDK
         run: |
-          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          mkdir -p "$HOME/.buildozer/android/platform"
+          rm -rf "$HOME/.buildozer/android/platform/android-sdk"
+          ln -sfn "$ANDROID_HOME" "$HOME/.buildozer/android/platform/android-sdk"
+
+      - name: Accept licenses and install SDK packages
+        run: |
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
           yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses || true
           sdkmanager --sdk_root="$ANDROID_HOME" \
             "platform-tools" \
-            "build-tools;33.0.1" \
-            "platforms;android-33"
+            "build-tools;$BUILD_TOOLS_VERSION" \
+            "platforms;$PLATFORM_VERSION"
 
-      - name: Install Buildozer
+      - name: Install buildozer
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install buildozer "cython<3.0.0"
 
       - name: Build Debug APK
         run: |
-          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
           buildozer android debug
 
       - name: Upload APK

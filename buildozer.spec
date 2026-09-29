@@ -5,11 +5,13 @@ package.domain = org.example
 
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,txt,json
-source.exclude_dirs = __pycache__, bin, .github
+source.exclude_dirs = __pycache__, bin, .github, .git
+
+source.main_file = gui.py
 
 version = 0.1
 
-requirements = python3,kivy,pymupdf
+requirements = python3,kivy
 
 orientation = portrait
 fullscreen = 0
