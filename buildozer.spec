@@ -10,7 +10,7 @@ source.exclude_dirs = __pycache__,bin,.github,.git
 
 version = 0.1
 
-requirements = python3,kivy
+requirements = python3,kivy,pymupdf
 
 orientation = portrait
 fullscreen = 0
